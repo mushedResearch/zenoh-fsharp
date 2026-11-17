@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Zenoh</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);FS1182</NoWarn>
+    <PackageId>Zenoh.FSharp</PackageId>
+    <Description>F# bindings for Eclipse Zenoh over zenoh-c $(ZenohCVersion).</Description>
+    <PackageLicenseExpression>EPL-2.0 OR Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Native/Opaque.g.fs" />
+    <Compile Include="Enums.fs" />
+    <Compile Include="Native/Types.fs" />
+    <Compile Include="Native/Interop.fs" />
+    <Compile Include="Internal.fs" />
+    <Compile Include="Sample.fs" />
+    <Compile Include="Config.fs" />
+    <Compile Include="KeyExpr.fs" />
+    <Compile Include="Handlers.fs" />
+    <Compile Include="Shm.fs" />
+    <Compile Include="Session.fs" />
+    <Compile Include="Liveliness.fs" />
+    <Compile Include="Querier.fs" />
+    <Compile Include="Scouting.fs" />
+    <Compile Include="Advanced.fs" />
+    <Compile Include="Serialization.fs" />
+  </ItemGroup>
+
+  <!-- zenoh-c native libraries fetched by scripts/fetch-zenohc.sh into native/<rid>/.
+       Packed as runtimes/<rid>/native/; the library of the build machine is also copied
+       next to the assembly so that projects referencing this one find it. -->
+  <ItemGroup>
+    <ZenohNativeLib Include="$(ZenohNativeDir)*/libzenohc.so;$(ZenohNativeDir)*/libzenohc.dylib;$(ZenohNativeDir)*/zenohc.dll" />
+    <None Include="@(ZenohNativeLib)" Pack="true" PackagePath="runtimes/%(RecursiveDir)native/%(Filename)%(Extension)" Visible="false" />
+    <None Include="$(ZenohNativeDir)$(ZenohHostRid)/*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckZenohNative" BeforeTargets="Build" Condition="!Exists('$(ZenohNativeDir)$(ZenohHostRid)')">
+    <Warning Text="zenoh-c is missing for $(ZenohHostRid): run scripts/fetch-zenohc.sh $(ZenohCVersion) $(ZenohHostRid)" />
+  </Target>
+
+</Project>
