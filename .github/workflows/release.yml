@@ -16,8 +16,6 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Holds the NUGET_API_KEY secret; add required reviewers to it to approve each release.
-    environment: nuget
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
@@ -35,6 +33,6 @@ jobs:
           path: artifacts/*
       - name: Push to nuget.org
         # Pushes the .snupkg next to each .nupkg as well.
-        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_TOKEN" --source https://api.nuget.org/v3/index.json --skip-duplicate
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}

@@ -118,7 +118,7 @@ CI (`.github/workflows/ci.yml`) builds and tests on Linux, Windows and macOS, an
 pull request and push to `main`. To publish a version, push a tag `v<version>` (for example
 `git tag v0.1.0 && git push origin v0.1.0`): `.github/workflows/release.yml` runs CI, packs that
 version with every zenoh-c runtime, and pushes the `.nupkg` and `.snupkg` to nuget.org with the
-`NUGET_API_KEY` secret of the `nuget` environment.
+`NUGET_TOKEN` repository secret (a nuget.org API key).
 
 ## License
 
