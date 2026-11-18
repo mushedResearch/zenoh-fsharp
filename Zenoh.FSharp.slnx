@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Zenoh.Samples/Zenoh.Samples.fsproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Zenoh.FSharp/Zenoh.FSharp.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Zenoh.FSharp.Tests/Zenoh.FSharp.Tests.fsproj" />
+  </Folder>
+</Solution>

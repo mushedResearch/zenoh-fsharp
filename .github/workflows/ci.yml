@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Fetch zenoh-c
+        shell: bash
+        run: bash scripts/fetch-zenohc.sh "" ${{ matrix.rid }}
+      - name: Build
+        run: dotnet build Zenoh.FSharp.slnx -c Release
+      - name: Test
+        run: dotnet run --project tests/Zenoh.FSharp.Tests -c Release --no-build -- --summary
+
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Fetch zenoh-c for every runtime
+        run: bash scripts/fetch-zenohc.sh "" all
+      - name: Pack
+        run: dotnet pack src/Zenoh.FSharp -c Release -o artifacts
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/*

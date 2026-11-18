@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);FS0009;FS0051</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TestUtil.fs" />
+    <Compile Include="LayoutTests.fs" />
+    <Compile Include="KeyExprTests.fs" />
+    <Compile Include="ConfigTests.fs" />
+    <Compile Include="SessionTests.fs" />
+    <Compile Include="LivelinessTests.fs" />
+    <Compile Include="QuerierTests.fs" />
+    <Compile Include="ScoutingTests.fs" />
+    <Compile Include="ShmTests.fs" />
+    <Compile Include="CustomShmTests.fs" />
+    <Compile Include="AdvancedTests.fs" />
+    <Compile Include="SerializationTests.fs" />
+    <Compile Include="SourceInfoTests.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Expecto" Version="11.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Zenoh.FSharp/Zenoh.FSharp.fsproj" />
+  </ItemGroup>
+
+</Project>
