@@ -29,7 +29,7 @@ jobs:
         run: dotnet pack src/Zenoh.FSharp -c Release -o artifacts -p:Version="${GITHUB_REF_NAME#v}"
       - name: List the package
         run: unzip -l artifacts/*.nupkg
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: packages
           path: artifacts/*
