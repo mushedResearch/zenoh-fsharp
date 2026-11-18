@@ -5,6 +5,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);FS1182</NoWarn>
+    <!-- The bindings pass pointers to stack locals (&&x) to zenoh-c and to the lambdas that call it.
+         A .tail call frees the frame of its caller before the callee runs, so those pointers would
+         dangle; Release builds emit .tail calls unless this is off (Debug builds never do). -->
+    <Tailcalls>false</Tailcalls>
     <PackageId>Zenoh.FSharp</PackageId>
     <Description>F# bindings for Eclipse Zenoh over zenoh-c $(ZenohCVersion).</Description>
     <PackageLicenseExpression>EPL-2.0 OR Apache-2.0</PackageLicenseExpression>
