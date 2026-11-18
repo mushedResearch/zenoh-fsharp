@@ -36,6 +36,13 @@
     <ZenohPackRids>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64</ZenohPackRids>
   </PropertyGroup>
 
+  <!-- A published library references the lowest FSharp.Core it needs, not the one of the SDK that
+       builds it, so that applications choose theirs (dotnet/fsharp docs/fsharp-core-notes.md).
+       The package then depends on FSharp.Core >= 10.0.100, the first F# 10 release. -->
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.0.100" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
     <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" Visible="false" />
