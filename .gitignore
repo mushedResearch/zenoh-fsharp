@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# zenoh-c libraries and headers fetched by scripts/fetch-zenohc.sh
+native/
+.idea/
