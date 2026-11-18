@@ -3,12 +3,20 @@
 #
 # Usage: scripts/fetch-zenohc.sh [version] [rid]
 #   version  zenoh-c release tag (default: the version in ZenohCVersion of Directory.Build.props)
-#   rid      .NET runtime identifier: linux-x64 (default), linux-arm64, osx-x64, osx-arm64, win-x64
+#   rid      .NET runtime identifier: linux-x64 (default), linux-arm64, osx-x64, osx-arm64, win-x64,
+#            or all (every one of them, as the NuGet package needs)
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 version="${1:-$(sed -n 's:.*<ZenohCVersion>\(.*\)</ZenohCVersion>.*:\1:p' "$root/Directory.Build.props")}"
 rid="${2:-linux-x64}"
+
+if [ "$rid" = all ]; then
+  for r in linux-x64 linux-arm64 osx-x64 osx-arm64 win-x64; do
+    bash "$0" "$version" "$r"
+  done
+  exit 0
+fi
 
 case "$rid" in
   linux-x64)   triple=x86_64-unknown-linux-gnu;  lib=libzenohc.so ;;

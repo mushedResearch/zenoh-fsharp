@@ -1,0 +1,40 @@
+name: Release
+
+# Push a tag such as v0.1.0 to test, pack and publish that version to nuget.org.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Holds the NUGET_API_KEY secret; add required reviewers to it to approve each release.
+    environment: nuget
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Fetch zenoh-c for every runtime
+        run: bash scripts/fetch-zenohc.sh "" all
+      - name: Pack
+        run: dotnet pack src/Zenoh.FSharp -c Release -o artifacts -p:Version="${GITHUB_REF_NAME#v}"
+      - name: List the package
+        run: unzip -l artifacts/*.nupkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/*
+      - name: Push to nuget.org
+        # Pushes the .snupkg next to each .nupkg as well.
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

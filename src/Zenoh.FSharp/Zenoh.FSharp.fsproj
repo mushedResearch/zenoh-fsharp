@@ -9,10 +9,37 @@
          A .tail call frees the frame of its caller before the callee runs, so those pointers would
          dangle; Release builds emit .tail calls unless this is off (Debug builds never do). -->
     <Tailcalls>false</Tailcalls>
-    <PackageId>Zenoh.FSharp</PackageId>
-    <Description>F# bindings for Eclipse Zenoh over zenoh-c $(ZenohCVersion).</Description>
-    <PackageLicenseExpression>EPL-2.0 OR Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
+
+  <!-- NuGet package. The release workflow sets Version from the tag (v1.2.3 gives 1.2.3). -->
+  <PropertyGroup>
+    <PackageId>Zenoh.FSharp</PackageId>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>mushed Research</Authors>
+    <Company>mushed Research</Company>
+    <Copyright>Copyright (c) 2024 mushedResearch</Copyright>
+    <Description>F# bindings for Eclipse Zenoh over zenoh-c $(ZenohCVersion): sessions, pub/sub, queries, queriers, liveliness, scouting, shared memory, zenoh-ext advanced pub/sub and serialization. Includes the native zenoh-c libraries for linux-x64, linux-arm64, osx-x64, osx-arm64 and win-x64.</Description>
+    <PackageTags>zenoh;fsharp;f#;pubsub;messaging;iot;robotics;zenoh-c</PackageTags>
+    <!-- The bindings are MIT (LICENSE); the zenoh-c libraries in runtimes/ are EPL-2.0 OR Apache-2.0
+         (THIRD-PARTY-NOTICES.md, packed with them). -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/mushedResearch/zenoh-fsharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mushedResearch/zenoh-fsharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- SourceLink (built into the .NET SDK) and a symbol package for nuget.org. -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Every runtime the package ships zenoh-c for; pack fails when one is missing. -->
+    <ZenohPackRids>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64</ZenohPackRids>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="Native/Opaque.g.fs" />
@@ -37,13 +64,23 @@
        Packed as runtimes/<rid>/native/; the library of the build machine is also copied
        next to the assembly so that projects referencing this one find it. -->
   <ItemGroup>
-    <ZenohNativeLib Include="$(ZenohNativeDir)*/libzenohc.so;$(ZenohNativeDir)*/libzenohc.dylib;$(ZenohNativeDir)*/zenohc.dll" />
+    <ZenohNativeLib Include="$(ZenohNativeDir)**/libzenohc.so;$(ZenohNativeDir)**/libzenohc.dylib;$(ZenohNativeDir)**/zenohc.dll" />
     <None Include="@(ZenohNativeLib)" Pack="true" PackagePath="runtimes/%(RecursiveDir)native/%(Filename)%(Extension)" Visible="false" />
     <None Include="$(ZenohNativeDir)$(ZenohHostRid)/*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <Target Name="CheckZenohNative" BeforeTargets="Build" Condition="!Exists('$(ZenohNativeDir)$(ZenohHostRid)')">
     <Warning Text="zenoh-c is missing for $(ZenohHostRid): run scripts/fetch-zenohc.sh $(ZenohCVersion) $(ZenohHostRid)" />
+  </Target>
+
+  <!-- A package without the library of a runtime fails there at the first call. Set
+       ZenohAllowMissingNative=true to pack a local test package anyway. -->
+  <Target Name="CheckZenohNativePack" BeforeTargets="GenerateNuspec" Condition="'$(ZenohAllowMissingNative)' != 'true'">
+    <ItemGroup>
+      <_ZenohPackRid Include="$(ZenohPackRids)" />
+      <_ZenohMissingRid Include="@(_ZenohPackRid)" Condition="!Exists('$(ZenohNativeDir)%(Identity)')" />
+    </ItemGroup>
+    <Error Condition="'@(_ZenohMissingRid)' != ''" Text="zenoh-c is missing for @(_ZenohMissingRid, ', '): run scripts/fetch-zenohc.sh $(ZenohCVersion) &lt;rid&gt; for each, or scripts/fetch-zenohc.sh $(ZenohCVersion) all" />
   </Target>
 
 </Project>

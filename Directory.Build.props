@@ -12,5 +12,7 @@
     <ZenohHostRid Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-$(ZenohHostArch)</ZenohHostRid>
     <ZenohHostRid Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx-$(ZenohHostArch)</ZenohHostRid>
     <ZenohHostRid Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-$(ZenohHostArch)</ZenohHostRid>
+    <!-- Reproducible builds with normalized source paths on CI (SourceLink maps them to GitHub). -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>

@@ -1,7 +1,21 @@
 # Zenoh.FSharp
 
+[![CI](https://github.com/mushedResearch/zenoh-fsharp/actions/workflows/ci.yml/badge.svg)](https://github.com/mushedResearch/zenoh-fsharp/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/Zenoh.FSharp.svg)](https://www.nuget.org/packages/Zenoh.FSharp)
+
 F# bindings for [Eclipse Zenoh](https://zenoh.io), over the C API of
 [zenoh-c](https://github.com/eclipse-zenoh/zenoh-c) 1.10.2.
+
+## Install
+
+```sh
+dotnet add package Zenoh.FSharp
+```
+
+The package targets .NET 10 and contains the zenoh-c library for linux-x64, linux-arm64, osx-x64,
+osx-arm64 and win-x64 (`runtimes/<rid>/native/`): nothing else to install.
+
+## Usage
 
 ```fsharp
 open Zenoh
@@ -15,20 +29,24 @@ use q = session.DeclareQueryable("demo/answer", fun q -> q.Reply("demo/answer", 
 let replies = session.Get("demo/answer").Result   // Reply list: ReplyOk sample | ReplyErr error
 ```
 
-## Setup
+More examples: `samples/Zenoh.Samples` (`sub`, `pub`, `get`, `queryable`).
+
+## Building from source
 
 The native library is not in the repository. Fetch the prebuilt zenoh-c release first:
 
 ```sh
 scripts/fetch-zenohc.sh            # version from Directory.Build.props, linux-x64
 scripts/fetch-zenohc.sh 1.10.2 osx-arm64
+scripts/fetch-zenohc.sh "" all     # every runtime of the package
 dotnet build
 dotnet run --project tests/Zenoh.FSharp.Tests
 ```
 
 The script puts the library in `native/<rid>/` and the headers in `native/include/`. The build
-copies the library of the build machine next to the assembly, and `dotnet pack` puts every fetched
-library under `runtimes/<rid>/native/`.
+copies the library of the build machine next to the assembly, and `dotnet pack -c Release` puts every
+fetched library under `runtimes/<rid>/native/`. Pack fails when one of the five runtimes is missing;
+`-p:ZenohAllowMissingNative=true` packs a local test package anyway.
 
 ## API
 
@@ -94,6 +112,15 @@ Rules that come from zenoh-c:
 The option structs mirror the official prebuilt zenoh-c, which is built with
 `Z_FEATURE_UNSTABLE_API`. A zenoh-c built without it has other layouts.
 
+## Releasing
+
+CI (`.github/workflows/ci.yml`) builds and tests on Linux, Windows and macOS, and packs, for every
+pull request and push to `main`. To publish a version, push a tag `v<version>` (for example
+`git tag v0.1.0 && git push origin v0.1.0`): `.github/workflows/release.yml` runs CI, packs that
+version with every zenoh-c runtime, and pushes the `.nupkg` and `.snupkg` to nuget.org with the
+`NUGET_API_KEY` secret of the `nuget` environment.
+
 ## License
 
-zenoh-c is licensed under EPL-2.0 OR Apache-2.0.
+The bindings are licensed under the MIT license (`LICENSE`). zenoh-c, whose libraries the package
+includes, is licensed under EPL-2.0 OR Apache-2.0 (`THIRD-PARTY-NOTICES.md`).
